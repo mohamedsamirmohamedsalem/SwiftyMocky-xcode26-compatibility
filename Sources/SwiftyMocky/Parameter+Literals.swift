@@ -1,6 +1,32 @@
+
 import Foundation
 
 // MARK: - ExpressibleByStringLiteral
+
+#if !canImport(SwiftUI)
+extension Optional:
+    ExpressibleByStringLiteral,
+    ExpressibleByExtendedGraphemeClusterLiteral,
+    ExpressibleByUnicodeScalarLiteral
+    where Wrapped: ExpressibleByStringLiteral
+{
+    public typealias StringLiteralType = Wrapped.StringLiteralType
+    public typealias ExtendedGraphemeClusterLiteralType = Wrapped.ExtendedGraphemeClusterLiteralType
+    public typealias UnicodeScalarLiteralType = Wrapped.UnicodeScalarLiteralType
+
+    public init(stringLiteral value: StringLiteralType) {
+        self = .some(Wrapped.init(stringLiteral: value))
+    }
+
+    public init(extendedGraphemeClusterLiteral value: ExtendedGraphemeClusterLiteralType) {
+        self = .some(Wrapped.init(extendedGraphemeClusterLiteral: value))
+    }
+
+    public init(unicodeScalarLiteral value: UnicodeScalarLiteralType) {
+        self = .some(Wrapped.init(unicodeScalarLiteral: value))
+    }
+}
+#endif  !canImport(SwiftUI) 
 
 extension Parameter:
     ExpressibleByStringLiteral,
@@ -35,6 +61,16 @@ extension Parameter: ExpressibleByNilLiteral where ValueType: ExpressibleByNilLi
 
 // MARK: - ExpressibleByIntegerLiteral
 
+#if !canImport(SwiftUI)
+extension Optional: ExpressibleByIntegerLiteral where Wrapped: ExpressibleByIntegerLiteral {
+    public typealias IntegerLiteralType = Wrapped.IntegerLiteralType
+
+    public init(integerLiteral value: IntegerLiteralType) {
+        self = .some(Wrapped.init(integerLiteral: value))
+    }
+}
+#endif  !canImport(SwiftUI) 
+
 extension Parameter: ExpressibleByIntegerLiteral where ValueType: ExpressibleByIntegerLiteral {
     public typealias IntegerLiteralType = ValueType.IntegerLiteralType
 
@@ -45,6 +81,16 @@ extension Parameter: ExpressibleByIntegerLiteral where ValueType: ExpressibleByI
 
 // MARK: - ExpressibleByBooleanLiteral
 
+#if !canImport(SwiftUI)
+extension Optional: ExpressibleByBooleanLiteral where Wrapped: ExpressibleByBooleanLiteral {
+    public typealias BooleanLiteralType = Wrapped.BooleanLiteralType
+
+    public init(booleanLiteral value: BooleanLiteralType) {
+        self = .some(Wrapped.init(booleanLiteral: value))
+    }
+}
+#endif  !canImport(SwiftUI) 
+
 extension Parameter: ExpressibleByBooleanLiteral where ValueType: ExpressibleByBooleanLiteral {
     public typealias BooleanLiteralType = ValueType.BooleanLiteralType
 
@@ -54,6 +100,16 @@ extension Parameter: ExpressibleByBooleanLiteral where ValueType: ExpressibleByB
 }
 
 // MARK: - ExpressibleByFloatLiteral
+
+#if !canImport(SwiftUI)
+extension Optional: ExpressibleByFloatLiteral where Wrapped: ExpressibleByFloatLiteral {
+    public typealias FloatLiteralType = Wrapped.FloatLiteralType
+
+    public init(floatLiteral value: FloatLiteralType) {
+        self = .some(Wrapped.init(floatLiteral: value))
+    }
+}
+#endif  !canImport(SwiftUI) 
 
 extension Parameter: ExpressibleByFloatLiteral where ValueType: ExpressibleByFloatLiteral {
     public typealias FloatLiteralType = ValueType.FloatLiteralType
@@ -79,6 +135,16 @@ private extension ExpressibleByArrayLiteral where ArrayLiteralElement: Hashable 
     }
 }
 
+#if !canImport(SwiftUI)
+extension Optional: ExpressibleByArrayLiteral where Wrapped: ExpressibleByArrayLiteral {
+    public typealias ArrayLiteralElement = Wrapped.ArrayLiteralElement
+
+    public init(arrayLiteral elements: ArrayLiteralElement...) {
+        self = .some(Wrapped.init(elements))
+    }
+}
+#endif  !canImport(SwiftUI) 
+
 extension Parameter: ExpressibleByArrayLiteral where ValueType: ExpressibleByArrayLiteral {
     public typealias ArrayLiteralElement = ValueType.ArrayLiteralElement
 
@@ -96,11 +162,27 @@ private extension ExpressibleByDictionaryLiteral where Key: Hashable {
     }
 }
 
+#if !canImport(SwiftUI)
+extension Optional: ExpressibleByDictionaryLiteral where Wrapped: ExpressibleByDictionaryLiteral, Wrapped.Key: Hashable, Wrapped == [Wrapped.Key: Wrapped.Value] {
+    public typealias Key = Wrapped.Key
+    public typealias Value = Wrapped.Value
+
+    public init(dictionaryLiteral elements: (Key, Value)...) {
+        let array = Array(elements)
+        let value: [Key: Value] = Dictionary(uniqueKeysWithValues: array)
+        self = .some(value)
+    }
+}
+#endif  !canImport(SwiftUI) 
+
 extension Parameter: ExpressibleByDictionaryLiteral where ValueType: ExpressibleByDictionaryLiteral, ValueType.Key: Hashable {
     public typealias Key = ValueType.Key
     public typealias Value = ValueType.Value
 
     public init(dictionaryLiteral elements: (Key, Value)...) {
-        self = .value(ValueType.init(elements))
+        let array = Array(elements)
+        let value: [Key: Value] = Dictionary(uniqueKeysWithValues: array)
+        self = .value(value as! ValueType)
     }
 }
+
